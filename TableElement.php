@@ -4,12 +4,16 @@ class TableElement {
 	
 	private $objData;
 	private $tableClass;
-
+	private $tableCaption;
+	private $tableAttr;
 	public $strTable;
 
 
-	function __construct(){
+	function TableElement(){
 		$this->strTable = "";
+		$this->tableClass = array("table");
+		$this->tableAttr = array();
+		$this->tableCaption = "";
 	}
 
 	public function getData(){
@@ -21,12 +25,34 @@ class TableElement {
 	}
 
 	public function setTableClass($tableClass){
-		$this->tableClass = $tableClass;
+		$this->tableClass = array_merge($this->tableClass, $tableClass);
+	}
+
+	public function setTableAttr($tableAttr){
+		$this->tableAttr = array_merge($this->tableAttr, $tableAttr);
+	}
+
+	public function setTableCaption($tableCaption){
+		$this->tableCaption = $tableCaption;
+	}
+
+	public function generateTableTag(){
+		$tableTag = "<table class='";
+		foreach ($this->tableClass as $class) {
+			$tableTag .= $class." ";
+		}
+		$tableTag .= "' ";
+		foreach ($this->tableAttr as $key => $attr) {
+			$tableTag .= $key."='".$attr."'";
+		}
+		$tableTag .= " >";
+
+		return $tableTag;
 	}
 
 	public function generateTable(){
 		$allData = $this->objData;
-		$strTable = (!empty($this->tableClass)) ? "<table class='".$this->tableClass."' >" : "<table>";
+		$strTable = $this->generateTableTag();
 		
 		/* Start : Create Table header */
 		$strTable .= "<tr>";
@@ -48,8 +74,22 @@ class TableElement {
 			$strTable .= "</tr>";
 		}
 		/* End : Data Render*/
-
+		
 		$strTable .= "</table>";
-		echo $strTable;
+
+		if($this->tableCaption != ""){
+			$wrappedTable = $this->wrapWithPanel($strTable);
+			echo $wrappedTable;
+		}else{
+			echo $strTable;
+		}
+	}
+
+	public function wrapWithPanel($strTable){
+		$wrapper = '<div class="panel panel-default">';
+		$wrapper .= '<div class="panel-heading">'.$this->tableCaption.'</div>';			
+		$wrapper .= $strTable;
+		$wrapper .= '</div>';
+		return $wrapper;
 	}
 }
